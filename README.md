@@ -1,3 +1,64 @@
+# Running Textual Inversion on RunPod using JuptyrLab.
+## Notes
+```
+This should work with any rented GPU with 24GB of VRAM or more.
+Remember to navigate to the /workspace/ folder in the directory before starting up a terminal.
+You may need to reload the environment if you disconnect.
+This SHOULD work with other cloud hosting services that use JuptyrLab.
+Images are squished down to 512x512, NOT CROPPED. Cropping them yourself will help with results.
+The font in the /data/ file is to fix a problem with the image generation on the trainer.
+```
+
+
+## Setup
+### STEP 1
+Start a terminal. Then,
+```
+conda init bash
+```
+Close off of the terminal. This is to fix a bug with JuptyrLab, this lets you use environments.
+
+### STEP 2
+Start another terminal. Then,
+```
+git clone https://github.com/gameruntouch/textual_inversion
+
+cd textual_inversion
+conda env create -f environment.yaml
+conda activate ldm
+
+mkdir -p training_data
+mkdir -p models/ldm/stable-diffusion-v1
+wget -O models/ldm/stable-diffusion-v1/model.ckpt <A link to the SD v1.4 weights, I used dropbox personally.>
+```
+
+### STEP 3
+Add the image files you would like to train on to the /training_data/ folder. Then,
+```
+rm training_data/.ipynb_checkpoints/*
+rmdir training_data/.ipynb_checkpoints
+```
+The following script deletes invisible checkpoints that JupytrLab likes to create in the /training_data/ folder which crashes training.
+
+
+### Commands
+Training,
+```
+cd textual_inversion
+conda activate ldm
+python main.py --base configs/stable-diffusion/v1-finetune.yaml -t --actual_resume models/ldm/stable-diffusion-v1/model.ckpt --gpus 0, --data_root training_data --init_word "<TOKEN TO USE AS BASE>" --datadir_in_name false --placeholder_tokens "<WORD USED IN PROMPTS>"
+```
+
+Generation,
+```
+cd textual_inversion
+conda activate ldm
+python scripts/stable_txt2img.py --ddim_eta 0.0 --n_samples 1 --n_iter 1  --scale 8.0  --ddim_steps 50 --embedding_path <EMBEDDINGS FILE> --ckpt models/ldm/stable-diffusion-v1/model.ckpt --prompt "<A PROMPT. The placeholder word REQUIRES * before it in the prompt.>"
+```
+
+Enjoy. The script is pretty finnicky, but it does work, may need a lot of data for training.
+
+
 # An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion
 
 [![arXiv](https://img.shields.io/badge/arXiv-2208.01618-b31b1b.svg)](https://arxiv.org/abs/2208.01618)
