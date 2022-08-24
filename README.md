@@ -38,7 +38,7 @@ Add the image files you would like to train on to the /training_data/ folder. Th
 rm training_data/.ipynb_checkpoints/*
 rmdir training_data/.ipynb_checkpoints
 ```
-The following script deletes invisible checkpoints that JupytrLab likes to create in the /training_data/ folder which crashes training.
+The above script deletes invisible checkpoints that JupytrLab likes to create in the /training_data/ folder which crashes training.
 
 
 ### Commands
